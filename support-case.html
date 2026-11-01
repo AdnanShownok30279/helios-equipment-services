@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Helios Equipment Services | Request support</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0a1f33;
+    --navy-2: #12304d;
+    --steel: #5e7083;
+    --hair: #d8dee5;
+    --wash: #f4f6f9;
+    --paper: #ffffff;
+    --gold: #c29a4b;
+    --low: #2e8b8b;
+    --med: #c29a4b;
+    --high: #c0432f;
+    --font: "Hanken Grotesk", "Segoe UI", system-ui, -apple-system, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; font-family: var(--font); font-size: 16px; line-height: 1.6; color: var(--navy); background: var(--paper); }
+
+  .shell { display: grid; grid-template-columns: minmax(360px, 5fr) 7fr; min-height: 100vh; }
+
+  /* ---- left panel ---- */
+  .panel {
+    position: sticky; top: 0; height: 100vh; overflow: hidden;
+    background: var(--navy); color: #e8eef4;
+    padding: 44px 56px;
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .rings { position: absolute; right: -260px; bottom: -260px; width: 620px; height: 620px; opacity: .55; pointer-events: none; }
+  .panel > *:not(.rings) { position: relative; }
+  .mark { display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 15px; letter-spacing: .01em; }
+  .mark svg { width: 30px; height: 30px; }
+  .panel h1 { font-weight: 300; font-size: clamp(2.2rem, 3.4vw, 3.4rem); line-height: 1.08; letter-spacing: -0.03em; margin: 0 0 18px; max-width: 15ch; color: #fff; }
+  .panel .lead { margin: 0; color: #9fb2c4; max-width: 36ch; font-size: 17px; }
+  .panel .rule { width: 44px; height: 2px; background: var(--gold); margin: 0 0 22px; }
+
+  /* gauge */
+  .gauge { width: 100%; max-width: 300px; }
+  .gauge svg { width: 100%; height: auto; display: block; overflow: visible; }
+  .gauge .arc { fill: none; stroke-width: 6; stroke-linecap: round; }
+  .needle { transform-box: view-box; transform-origin: 120px 120px; transform: rotate(0deg); transition: transform .8s cubic-bezier(.25, 1.35, .4, 1); }
+  .gauge-read { min-height: 4.6em; margin-top: 12px; }
+  .gauge-read p { margin: 0; display: none; }
+  .gauge-read strong { display: block; font-weight: 600; font-size: 17px; color: #fff; }
+  .gauge-read span { color: #9fb2c4; font-size: 15px; }
+  .gauge-read .r-med { display: block; }
+  .shell:has(#pr-low:checked) .needle  { transform: rotate(-60deg); }
+  .shell:has(#pr-high:checked) .needle { transform: rotate(60deg); }
+  .shell:has(#pr-low:checked) .gauge-read p,
+  .shell:has(#pr-high:checked) .gauge-read p { display: none; }
+  .shell:has(#pr-low:checked) .gauge-read .r-low { display: block; }
+  .shell:has(#pr-high:checked) .gauge-read .r-high { display: block; }
+
+  /* sequence */
+  .next { list-style: none; margin: 0; padding: 0; position: relative; }
+  .next::before { content: ""; position: absolute; left: 6px; top: 10px; bottom: 10px; width: 1px; background: #2c4a66; }
+  .next li { position: relative; padding: 0 0 22px 34px; }
+  .next li:last-child { padding-bottom: 0; }
+  .next li::before { content: ""; position: absolute; left: 0; top: 7px; width: 13px; height: 13px; border-radius: 50%; background: var(--navy); border: 2px solid var(--gold); }
+  .next strong { display: block; font-weight: 600; color: #fff; font-size: 16px; }
+  .next span { color: #9fb2c4; font-size: 15px; }
+  .foot { margin: 0; font-size: 14px; color: #7f95aa; max-width: 40ch; }
+
+  /* ---- form side ---- */
+  .stage { padding: 72px clamp(28px, 7vw, 112px) 80px; display: flex; justify-content: center; align-items: flex-start; }
+  form { width: 100%; max-width: 580px; }
+  .form-title { font-weight: 600; font-size: 14px; color: var(--steel); margin: 0 0 36px; }
+  fieldset { border: 0; padding: 0; margin: 0 0 44px; min-width: 0; }
+  legend { font-weight: 600; font-size: 22px; letter-spacing: -0.015em; padding: 0; margin-bottom: 22px; color: var(--navy); }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+  .field { margin-bottom: 26px; }
+  label.t { display: block; font-weight: 500; font-size: 13px; color: var(--steel); margin-bottom: 2px; }
+  .opt { color: #8a9aab; font-weight: 400; }
+  .help { font-size: 13px; color: var(--steel); margin: 8px 0 0; }
+
+  input[type=text], input[type=email], input[type=tel], input[type=number], textarea {
+    width: 100%; font: inherit; font-size: 17px; color: var(--navy);
+    background: transparent; border: 0; border-bottom: 1px solid var(--hair); border-radius: 0;
+    padding: 10px 0 11px; transition: border-color .2s, box-shadow .2s;
+  }
+  textarea { min-height: 132px; resize: vertical; line-height: 1.55; border: 1px solid var(--hair); border-radius: 6px; padding: 14px; margin-top: 8px; }
+  input:hover, textarea:hover { border-color: #b4c0cc; }
+  input[type=text]:focus, input[type=email]:focus, input[type=tel]:focus, input[type=number]:focus, textarea:focus {
+    outline: none; border-color: var(--navy); box-shadow: 0 1px 0 0 var(--navy);
+  }
+  textarea:focus { box-shadow: 0 0 0 1px var(--navy); }
+
+  .vh { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
+
+  /* option pills */
+  .pills { position: relative; display: flex; flex-wrap: wrap; gap: 10px; }
+  .pills label {
+    padding: 12px 22px; border: 1px solid var(--hair); border-radius: 6px; cursor: pointer;
+    font-weight: 500; font-size: 15px; color: var(--navy); background: var(--paper);
+    display: inline-flex; align-items: center; gap: 10px;
+    transition: border-color .15s, background .15s, color .15s;
+  }
+  .pills label:hover { border-color: #8fa0b2; }
+  .pills input:checked + label { background: var(--navy); border-color: var(--navy); color: #fff; }
+  .pills input:focus-visible + label { outline: 3px solid var(--gold); outline-offset: 2px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+  .d-low { background: var(--low); } .d-med { background: var(--med); } .d-high { background: var(--high); }
+
+  /* equipment tiles */
+  .tiles { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .tiles label {
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+    padding: 22px 8px 16px; cursor: pointer; text-align: center;
+    border: 1px solid var(--hair); border-radius: 6px; background: var(--paper);
+    font-weight: 500; font-size: 15px; transition: border-color .15s, background .15s, box-shadow .15s;
+  }
+  .tiles svg { width: 40px; height: 40px; stroke: var(--steel); fill: none; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; transition: stroke .15s; }
+  .tiles label:hover { border-color: #8fa0b2; }
+  .tiles input:checked + label { border-color: var(--navy); background: var(--wash); box-shadow: inset 0 0 0 1px var(--navy); }
+  .tiles input:checked + label svg { stroke: var(--navy); }
+  .tiles input:focus-visible + label { outline: 3px solid var(--gold); outline-offset: 2px; }
+
+  /* submit */
+  .send {
+    position: relative; overflow: hidden; width: 100%; font: inherit; font-weight: 600; font-size: 16px; letter-spacing: .02em;
+    color: #fff; background: var(--navy); border: 0; border-radius: 6px; padding: 18px 20px; cursor: pointer;
+    transition: background .2s;
+  }
+  .send::after { content: ""; position: absolute; left: 0; bottom: 0; height: 3px; width: 100%; background: var(--gold); transform: scaleX(0); transform-origin: left; transition: transform .35s ease; }
+  .send:hover { background: var(--navy-2); }
+  .send:hover::after { transform: scaleX(1); }
+  .send:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+  .after { text-align: center; color: var(--steel); font-size: 14px; margin: 18px 0 0; }
+
+  @media (max-width: 900px) {
+    .shell { grid-template-columns: 1fr; }
+    .panel { position: relative; height: auto; padding: 28px 24px 32px; gap: 26px; }
+    .panel h1 { max-width: none; }
+    .rings { width: 420px; height: 420px; right: -150px; bottom: -150px; }
+    .gauge { max-width: 240px; }
+    .foot { display: none; }
+    .stage { padding: 36px 22px 56px; }
+  }
+  @media (max-width: 520px) {
+    .grid2 { grid-template-columns: 1fr; gap: 0; }
+    .tiles { gap: 8px; }
+    .tiles label { padding: 16px 4px 12px; font-size: 14px; }
+    .pills label { padding: 11px 16px; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <aside class="panel">
+    <svg class="rings" viewBox="0 0 620 620" aria-hidden="true" fill="none" stroke="#c29a4b" stroke-width="1">
+      <g opacity=".6"><circle cx="310" cy="310" r="80"/><circle cx="310" cy="310" r="140" opacity=".8"/><circle cx="310" cy="310" r="200" opacity=".6"/><circle cx="310" cy="310" r="260" opacity=".4"/><circle cx="310" cy="310" r="310" opacity=".25"/></g>
+      <g opacity=".35" stroke-linecap="round"><line x1="310" y1="0" x2="310" y2="620"/><line x1="0" y1="310" x2="620" y2="310"/><line x1="91" y1="91" x2="529" y2="529"/><line x1="529" y1="91" x2="91" y2="529"/></g>
+    </svg>
+    <div class="mark">
+      <svg viewBox="0 0 40 40" aria-hidden="true">
+        <circle cx="20" cy="20" r="7" fill="#c29a4b"/>
+        <g stroke="#c29a4b" stroke-width="2" stroke-linecap="round">
+          <line x1="20" y1="3" x2="20" y2="8"/><line x1="20" y1="32" x2="20" y2="37"/>
+          <line x1="3" y1="20" x2="8" y2="20"/><line x1="32" y1="20" x2="37" y2="20"/>
+          <line x1="8" y1="8" x2="11.5" y2="11.5"/><line x1="28.5" y1="28.5" x2="32" y2="32"/>
+          <line x1="8" y1="32" x2="11.5" y2="28.5"/><line x1="28.5" y1="11.5" x2="32" y2="8"/>
+        </g>
+      </svg>
+      Helios Equipment Services
+    </div>
+    <div>
+      <div class="rule"></div>
+      <h1>How can we help with your equipment?</h1>
+      <p class="lead">Tell us what is happening and how urgent it is. We confirm every request by email with your case number.</p>
+    </div>
+    <div>
+      <div class="gauge" aria-hidden="true">
+        <svg viewBox="0 0 240 140">
+          <path class="arc" stroke="#2e8b8b" d="M30 120 A90 90 0 0 1 72.5 44.2"/>
+          <path class="arc" stroke="#c29a4b" d="M80 40 A90 90 0 0 1 160 40"/>
+          <path class="arc" stroke="#c0432f" d="M167.5 44.2 A90 90 0 0 1 210 120"/>
+          <g class="needle">
+            <line x1="120" y1="120" x2="120" y2="44" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="120" cy="120" r="9" fill="#0a1f33" stroke="#fff" stroke-width="2.5"/>
+          </g>
+        </svg>
+      </div>
+      <div class="gauge-read" aria-live="polite">
+        <p class="r-low"><strong>Low urgency</strong><span>Planned work or a question. We reply within normal hours.</span></p>
+        <p class="r-med"><strong>Medium urgency</strong><span>Something is wrong, but you can keep working.</span></p>
+        <p class="r-high"><strong>High urgency</strong><span>Equipment is down or unsafe. We look at this first.</span></p>
+      </div>
+    </div>
+  </aside>
+
+  <main class="stage">
+    <form action="https://webto.salesforce.com/servlet/servlet.WebToCase?encoding=UTF-8&orgId=00Dg800000Oa6HD" method="POST">
+      <input type="hidden" name="orgid" value="00Dg800000Oa6HD">
+      <input type="hidden" name="retURL" value="https://adnanshownok30279.github.io/hes-web-forms/thank-you.html?from=support">
+
+      <p class="form-title">Support request</p>
+
+      <fieldset>
+        <legend>Your details</legend>
+        <div class="grid2">
+          <div class="field">
+            <label class="t" for="name">Name</label>
+            <input id="name" name="name" maxlength="80" type="text" required autocomplete="name">
+          </div>
+          <div class="field">
+            <label class="t" for="email">Email</label>
+            <input id="email" name="email" maxlength="80" type="email" required autocomplete="email">
+          </div>
+        </div>
+        <div class="field">
+          <label class="t" for="phone">Phone <span class="opt">(optional)</span></label>
+          <input id="phone" name="phone" maxlength="40" type="tel" autocomplete="tel">
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Type of request</legend>
+        <div class="pills">
+          <input class="vh" type="radio" id="rt-tech" name="00Ng8000019dn81" value="Technical" required>
+          <label for="rt-tech">Technical</label>
+          <input class="vh" type="radio" id="rt-bill" name="00Ng8000019dn81" value="Billing">
+          <label for="rt-bill">Billing</label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Equipment</legend>
+        <div class="tiles">
+          <input class="vh" type="radio" id="eq-chiller" name="00Ng8000019gAiQ" value="Chiller">
+          <label for="eq-chiller">
+            <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 5v30M7 12.5l26 15M7 27.5l26-15"/><path d="M16 7l4 3 4-3M16 33l4-3 4 3"/></svg>
+            Chiller
+          </label>
+          <input class="vh" type="radio" id="eq-comp" name="00Ng8000019gAiQ" value="Compressor">
+          <label for="eq-comp">
+            <svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="12"/><circle cx="20" cy="20" r="3.5"/><path d="M20 8v8.5M20 23.5V32M8 20h8.5M23.5 20H32"/></svg>
+            Compressor
+          </label>
+          <input class="vh" type="radio" id="eq-other" name="00Ng8000019gAiQ" value="Other">
+          <label for="eq-other">
+            <svg viewBox="0 0 40 40" aria-hidden="true"><rect x="7" y="9" width="26" height="22" rx="3"/><path d="M14 20h12M20 14v12"/></svg>
+            Other
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Priority</legend>
+        <div class="pills">
+          <input class="vh" type="radio" id="pr-low" name="priority" value="Low">
+          <label for="pr-low"><span class="dot d-low"></span>Low</label>
+          <input class="vh" type="radio" id="pr-med" name="priority" value="Medium" checked>
+          <label for="pr-med"><span class="dot d-med"></span>Medium</label>
+          <input class="vh" type="radio" id="pr-high" name="priority" value="High">
+          <label for="pr-high"><span class="dot d-high"></span>High</label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>What happened</legend>
+        <div class="field">
+          <label class="t" for="subject">Subject</label>
+          <input id="subject" name="subject" maxlength="80" type="text" required>
+        </div>
+        <div class="field">
+          <label class="t" for="description">Description</label>
+          <textarea id="description" name="description" required></textarea>
+        </div>
+      </fieldset>
+
+      <button class="send" type="submit">Send request</button>
+      <p class="after">You will receive a confirmation email with your case number.</p>
+    </form>
+  </main>
+
+</div>
+</body>
+</html>
